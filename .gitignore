@@ -5,8 +5,7 @@
 # --- Credentials ---
 /*.json
 !/package.json
-!/skills-lock.json
-
+tmp/
 # --- SQLite Databases ---
 *.db
 
