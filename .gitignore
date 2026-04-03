@@ -1,0 +1,23 @@
+# --- Environment Variables ---
+.env
+.env.local
+
+# --- Credentials ---
+/*.json
+!/package.json
+!/skills-lock.json
+
+# --- SQLite Databases ---
+*.db
+
+# --- Python ---
+.venv/
+__pycache__/
+*.pyc
+
+# --- Frontend (Next.js) ---
+web/node_modules/
+web/.next/
+
+# --- Antigravity Skills ---
+.agents/

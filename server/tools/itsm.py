@@ -1,0 +1,214 @@
+"""
+ITSM (IT Service Management) Tool for OmniD3sk.
+
+Creates and updates helpdesk tickets, persisted to a local SQLite database.
+In production, replace the DB layer with a REST API call to ServiceNow/Jira/Freshdesk.
+"""
+import json
+import logging
+import uuid
+from datetime import datetime
+from typing import Dict, List
+
+logger = logging.getLogger(__name__)
+
+# In-memory ticket store (for update_itsm_ticket lookups within a session)
+_TICKETS: Dict[str, Dict] = {}
+
+_current_session = None
+
+def set_session(session):
+    global _current_session
+    _current_session = session
+
+
+def create_itsm_ticket(
+    title: str,
+    description: str,
+    severity: str = "medium",
+    category: str = "IT Support",
+    portal_page: str = "",
+    error_code: str = "",
+    steps_to_reproduce: str = "",
+) -> str:
+    """Create a new ITSM helpdesk ticket and persist it to SQLite."""
+    # Guard: only ONE ticket per session
+    if _current_session and _current_session.tickets:
+        existing = _current_session.tickets[0]
+        existing_id = existing.get("ticket_id", "unknown")
+        logger.warning(f"Duplicate ticket blocked — session already has ticket {existing_id}")
+        return json.dumps({
+            "success": False,
+            "ticket_id": existing_id,
+            "message": f"Ticket {existing_id} already exists for this session. Use update_itsm_ticket to add notes.",
+            "ticket": existing
+        })
+
+    ticket_id = f"INC{str(uuid.uuid4())[:8].upper()}"
+
+    ticket = {
+        "ticket_id": ticket_id,
+        "title": title,
+        "description": description,
+        "severity": severity,
+        "category": category,
+        "portal_page": portal_page,
+        "error_code": error_code,
+        "steps_to_reproduce": steps_to_reproduce,
+        "status": "New",
+        "created_at": datetime.now().isoformat(),
+        "assigned_to": "L1 IT Support",
+    }
+
+    # ── Phase 2: Persist to SQLite ──
+    try:
+        from server.db import insert_ticket
+        insert_ticket(ticket)
+    except Exception as e:
+        logger.warning(f"SQLite insert failed (continuing in-memory): {e}")
+
+    _TICKETS[ticket_id] = ticket
+    logger.info(f"Created ITSM ticket: {ticket_id} - {title}")
+
+    if _current_session:
+        _current_session.tickets.append(ticket)
+        _current_session.update_checkpoint("resolution", "Document root cause", "complete", f"RCA for {title}")
+        _current_session.update_checkpoint("resolution", "Create ITSM ticket", "complete", f"Ticket {ticket_id}")
+        _current_session.update_checkpoint("resolution", "Generate diagnostic report", "complete", "Report available for download")
+
+    return json.dumps({
+        "success": True,
+        "ticket_id": ticket_id,
+        "message": f"Ticket {ticket_id} created successfully",
+        "ticket": ticket
+    })
+
+
+def update_itsm_ticket(
+    ticket_id: str,
+    status: str = "",
+    resolution: str = "",
+    notes: str = "",
+) -> str:
+    """Update an existing ITSM ticket."""
+    if ticket_id not in _TICKETS:
+        return json.dumps({
+            "success": False,
+            "message": f"Ticket {ticket_id} not found"
+        })
+
+    ticket = _TICKETS[ticket_id]
+
+    if status:
+        ticket["status"] = status
+    if resolution:
+        ticket["resolution"] = resolution
+    if notes:
+        ticket.setdefault("notes", []).append({
+            "text": notes,
+            "timestamp": datetime.now().isoformat()
+        })
+
+    ticket["updated_at"] = datetime.now().isoformat()
+
+    # ── Phase 2: Sync update to SQLite ──
+    try:
+        from server.db import update_ticket_in_db
+        update_ticket_in_db(ticket_id, status=status, resolution=resolution, notes=notes)
+    except Exception as e:
+        logger.warning(f"SQLite update failed (in-memory updated): {e}")
+
+    if _current_session:
+        for i, t in enumerate(_current_session.tickets):
+            if t.get("ticket_id") == ticket_id:
+                _current_session.tickets[i] = ticket
+                break
+
+    logger.info(f"Updated ITSM ticket: {ticket_id}")
+
+    return json.dumps({
+        "success": True,
+        "ticket_id": ticket_id,
+        "message": f"Ticket {ticket_id} updated",
+        "ticket": ticket
+    })
+
+
+def get_all_tickets() -> List[Dict]:
+    """Get all tickets — reads from SQLite (falls back to in-memory)."""
+    try:
+        from server.db import get_all_tickets as db_get_all
+        tickets = db_get_all()
+        if tickets:
+            return tickets
+    except Exception as e:
+        logger.warning(f"SQLite read failed, falling back to in-memory: {e}")
+    return list(_TICKETS.values())
+
+
+ITSM_DECLARATIONS = [
+    {
+        "name": "create_itsm_ticket",
+        "description": "Create a new ITSM helpdesk ticket when the user has an issue that needs tracking or escalation. Use this for persistent issues, recurring errors, or when the user explicitly asks to log a ticket.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "title": {
+                    "type": "STRING",
+                    "description": "Short descriptive title for the ticket"
+                },
+                "description": {
+                    "type": "STRING",
+                    "description": "Detailed description of the issue including context"
+                },
+                "severity": {
+                    "type": "STRING",
+                    "description": "Ticket severity: critical, high, medium, or low"
+                },
+                "category": {
+                    "type": "STRING",
+                    "description": "Support category (e.g. 'Authentication', 'Payments', 'Forms', 'Documents', 'Technical', 'Visa', 'Tax')"
+                },
+                "portal_page": {
+                    "type": "STRING",
+                    "description": "Portal page or section where the issue occurred"
+                },
+                "error_code": {
+                    "type": "STRING",
+                    "description": "Error code if applicable"
+                },
+                "steps_to_reproduce": {
+                    "type": "STRING",
+                    "description": "Steps to reproduce the issue"
+                }
+            },
+            "required": ["title", "description", "severity"]
+        }
+    },
+    {
+        "name": "update_itsm_ticket",
+        "description": "Update an existing ITSM ticket with new status, resolution notes, or additional information.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "ticket_id": {
+                    "type": "STRING",
+                    "description": "The ticket ID to update (e.g. INC12345678)"
+                },
+                "status": {
+                    "type": "STRING",
+                    "description": "New status: New, In Progress, Resolved, Closed"
+                },
+                "resolution": {
+                    "type": "STRING",
+                    "description": "Resolution description if the issue was fixed"
+                },
+                "notes": {
+                    "type": "STRING",
+                    "description": "Additional notes or updates"
+                }
+            },
+            "required": ["ticket_id"]
+        }
+    }
+]
