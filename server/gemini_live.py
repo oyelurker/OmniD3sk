@@ -24,32 +24,18 @@ class GeminiLive:
 
     async def start_session(self, audio_input_queue, video_input_queue, text_input_queue,
                            audio_output_callback, audio_interrupt_callback=None, setup_config=None):
-        # Parse setup_config into LiveConnectConfig
-        config_args = {"response_modalities": [types.Modality.AUDIO]}
-
+        config_args = {
+            "response_modalities": [types.Modality.AUDIO],
+            "speech_config": types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Leda")
+                )
+            ),
+            "system_instruction": types.Content(parts=[types.Part.from_text(
+                text='You are Olivia, the Master Orchestrator AI for OmniD3sk. CRITICAL DIRECTIVE: For security incidents, you MUST use the execute_security_playbook tool. Do not call individual granular tools. Wait for the playbook to finish, then give one single, brief confirmation explicitly stating the specific Ticket ID and Notion URL that the playbook created.'
+            )]),
+        }
         if setup_config:
-            if "generation_config" in setup_config:
-                gen_config = setup_config["generation_config"]
-                if "response_modalities" in gen_config:
-                    config_args["response_modalities"] = [types.Modality(m) for m in gen_config["response_modalities"]]
-                if "speech_config" in gen_config:
-                    try:
-                        voice_name = gen_config["speech_config"]["voice_config"]["prebuilt_voice_config"]["voice_name"]
-                        config_args["speech_config"] = types.SpeechConfig(
-                            voice_config=types.VoiceConfig(
-                                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name)
-                            )
-                        )
-                    except (KeyError, TypeError):
-                        pass
-
-            if "system_instruction" in setup_config:
-                try:
-                    text = setup_config["system_instruction"]["parts"][0]["text"]
-                    config_args["system_instruction"] = types.Content(parts=[types.Part(text=text)])
-                except (KeyError, IndexError, TypeError):
-                    pass
-
             if "proactivity" in setup_config:
                 try:
                     proactive_audio = setup_config["proactivity"].get("proactiveAudio", False)
@@ -110,11 +96,9 @@ class GeminiLive:
 
         async with self.client.aio.live.connect(model=self.model, config=config) as session:
             async def send_audio():
-                nonlocal _awaiting_user_input
                 try:
                     while True:
                         chunk = await audio_input_queue.get()
-                        _awaiting_user_input = False  # User is speaking — allow model response
                         await session.send_realtime_input(
                             audio=types.Blob(data=chunk, mime_type=f"audio/pcm;rate={self.input_sample_rate}")
                         )
@@ -154,6 +138,7 @@ class GeminiLive:
                             if server_content:
                                 if server_content.model_turn:
                                     if _awaiting_user_input:
+                                        # Suppress stray model output after turn_complete
                                         logger.debug("Suppressed model output (awaiting user input)")
                                         continue
                                     for part in server_content.model_turn.parts:
@@ -164,6 +149,7 @@ class GeminiLive:
                                                 audio_output_callback(part.inline_data.data)
 
                                 if server_content.input_transcription:
+                                    # User is speaking — reset turn gate
                                     _awaiting_user_input = False
                                     await event_queue.put({
                                         "serverContent": {
@@ -174,7 +160,7 @@ class GeminiLive:
                                         }
                                     })
 
-                                if server_content.output_transcription:
+                                if server_content.output_transcription and not _awaiting_user_input:
                                     await event_queue.put({
                                         "serverContent": {
                                             "outputTranscription": {
@@ -198,6 +184,7 @@ class GeminiLive:
                                     await event_queue.put({"type": "interrupted"})
 
                             if tool_call:
+                                # Tool calls are allowed even during turn gate
                                 _awaiting_user_input = False
                                 function_responses = []
                                 client_tool_calls = []
