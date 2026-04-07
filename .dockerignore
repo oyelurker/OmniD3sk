@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+.env.example
+gcp-key.json
+*.db
+web/
+.git/
+.agents/
+tmp/
+node_modules/
+.gitignore
+skills-lock.json
