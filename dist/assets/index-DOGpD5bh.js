@@ -280,7 +280,6 @@
                     </div>
                     
                     <div class="nav-center">
-                        <img src="/OmniD3sk.png" alt="Center Logo" class="center-logo">
                     </div>
 
                     <div class="nav-right">
