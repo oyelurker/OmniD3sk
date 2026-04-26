@@ -1,0 +1,557 @@
+/* ── OmniD3sk Dashboard — Dark Premium UI ──────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:           #0a0b0f;
+  --surface:      #111318;
+  --surface-2:    #181c24;
+  --surface-3:    #1e2330;
+  --border:       rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --accent:       #6366f1;
+  --accent-dim:   rgba(99,102,241,0.15);
+  --accent-hover: #7c7ff5;
+  --success:      #22c55e;
+  --success-dim:  rgba(34,197,94,0.12);
+  --error:        #f87171;
+  --error-dim:    rgba(248,113,113,0.12);
+  --warn:         #fbbf24;
+  --text-1:       #f1f3f9;
+  --text-2:       #8b95aa;
+  --text-3:       #4e5768;
+  --radius:       12px;
+  --radius-sm:    8px;
+  --shadow:       0 4px 24px rgba(0,0,0,0.5);
+  --shadow-lg:    0 12px 48px rgba(0,0,0,0.7);
+  --transition:   0.2s cubic-bezier(0.4,0,0.2,1);
+  --sidebar-w:    240px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.omni-root {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100dvh;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────────── */
+.omni-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 28px 16px 20px;
+  z-index: 10;
+}
+
+.omni-sidebar-top { display: flex; flex-direction: column; gap: 32px; }
+
+.omni-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.omni-logo-icon {
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.omni-logo-text {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-1);
+}
+
+.omni-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+.omni-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+}
+
+.omni-nav-link:hover { background: var(--surface-2); color: var(--text-1); }
+.omni-nav-link--active { background: var(--accent-dim); color: var(--accent); }
+
+/* User block */
+.omni-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.omni-avatar { border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+
+.omni-sidebar-user-info { flex: 1; min-width: 0; }
+.omni-sidebar-user-name  { font-size: 13px; font-weight: 600; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.omni-sidebar-user-email { font-size: 11px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.omni-signout-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  cursor: pointer;
+  padding: 5px 8px;
+  font-size: 14px;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+.omni-signout-btn:hover { background: var(--error-dim); color: var(--error); border-color: var(--error); }
+
+/* ── Main ─────────────────────────────────────────────────────────────────── */
+.omni-main {
+  padding: 40px 48px 60px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+/* ── Page Header ─────────────────────────────────────────────────────────────── */
+.omni-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.omni-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-1);
+}
+
+.omni-page-sub { font-size: 14px; color: var(--text-2); margin-top: 4px; }
+
+.omni-status-pills { display: flex; gap: 8px; align-items: center; }
+
+.omni-status-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+/* ── Cards Grid ────────────────────────────────────────────────────────────── */
+.omni-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+.omni-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.omni-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow); }
+
+.omni-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.omni-card-title-row { display: flex; align-items: center; gap: 10px; }
+
+.omni-card-icon { font-size: 20px; }
+
+.omni-card-title { font-size: 16px; font-weight: 600; color: var(--text-1); }
+
+.omni-card-header-right { display: flex; align-items: center; gap: 10px; }
+
+.omni-card-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+.omni-card-actions { display: flex; align-items: center; gap: 10px; padding-top: 4px; }
+
+/* ── Badge ─────────────────────────────────────────────────────────────────── */
+.omni-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.omni-badge--on  { background: var(--success-dim); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+.omni-badge--off { background: var(--surface-2);   color: var(--text-3);  border: 1px solid var(--border); }
+
+.omni-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
+.omni-badge-dot--on { background: var(--success); box-shadow: 0 0 6px var(--success); animation: omni-pulse 2s infinite; }
+
+@keyframes omni-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Help button ─────────────────────────────────────────────────────────────── */
+.omni-help-btn {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  line-height: 1;
+}
+.omni-help-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────────── */
+.omni-tip-wrap { position: relative; display: inline-flex; align-items: center; }
+
+.omni-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--transition), transform var(--transition);
+  z-index: 100;
+}
+
+.omni-tip-wrap:hover .omni-tip,
+.omni-tip-wrap:focus-within .omni-tip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Form fields ──────────────────────────────────────────────────────────── */
+.omni-fields { display: flex; flex-direction: column; gap: 16px; }
+
+.omni-field { display: flex; flex-direction: column; gap: 6px; }
+
+.omni-label { font-size: 13px; font-weight: 500; color: var(--text-2); }
+
+.omni-input-wrap { position: relative; display: flex; align-items: center; }
+
+.omni-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-1);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  padding: 10px 40px 10px 12px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  min-height: 44px;
+}
+
+.omni-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.omni-input::placeholder { color: var(--text-3); }
+
+.omni-input-eye {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-3);
+  padding: 4px;
+  transition: color var(--transition);
+}
+.omni-input-eye:hover { color: var(--text-2); }
+
+.omni-helper { font-size: 11px; color: var(--text-3); line-height: 1.5; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────── */
+.omni-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition), opacity var(--transition), box-shadow var(--transition);
+  min-height: 40px;
+  white-space: nowrap;
+}
+.omni-btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.omni-btn--primary {
+  background: var(--accent);
+  color: #fff;
+}
+.omni-btn--primary:hover { background: var(--accent-hover); box-shadow: 0 4px 16px var(--accent-dim); }
+
+.omni-btn--ghost {
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.omni-btn--ghost:hover { background: var(--surface-3); color: var(--text-1); border-color: var(--border-hover); }
+
+/* ── Onboarding banner ────────────────────────────────────────────────────── */
+.omni-onboard-banner {
+  margin-top: 28px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(167,139,250,0.04));
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+}
+
+.omni-onboard-title { font-size: 16px; font-weight: 600; color: var(--text-1); margin-bottom: 12px; }
+
+.omni-onboard-steps { list-style: decimal; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.omni-onboard-steps li { font-size: 14px; color: var(--text-2); line-height: 1.5; }
+.omni-onboard-steps strong { color: var(--text-1); }
+
+/* ── Help Drawer ─────────────────────────────────────────────────────────────── */
+.omni-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+.omni-overlay--on { opacity: 1; pointer-events: all; }
+
+.omni-drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: min(440px, 100vw);
+  height: 100dvh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: var(--shadow-lg);
+}
+.omni-drawer--open { transform: translateX(0); }
+
+.omni-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.omni-drawer-title { font-size: 16px; font-weight: 700; color: var(--text-1); }
+
+.omni-drawer-close {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 14px;
+  transition: background var(--transition), color var(--transition);
+}
+.omni-drawer-close:hover { background: var(--error-dim); color: var(--error); }
+
+.omni-drawer-body { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+.omni-step { display: flex; gap: 16px; align-items: flex-start; }
+
+.omni-step-num {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(99,102,241,0.3);
+}
+
+.omni-step-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+.omni-step-body  { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+.omni-drawer-link {
+  margin-top: 8px;
+  text-decoration: none;
+  justify-content: center;
+}
+
+/* ── Toasts ─────────────────────────────────────────────────────────────────── */
+.omni-toasts {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 300;
+  max-width: 360px;
+}
+
+.omni-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--surface-3);
+  box-shadow: var(--shadow);
+  animation: omni-slide-in 0.25s cubic-bezier(0.4,0,0.2,1) forwards;
+  color: var(--text-1);
+}
+
+.omni-toast--success { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); color: var(--success); }
+.omni-toast--error   { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.08); color: var(--error); }
+.omni-toast--info    { border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.08); color: var(--accent-hover); }
+
+.omni-toast-close {
+  background: none; border: none; cursor: pointer;
+  color: inherit; opacity: 0.6; font-size: 14px;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+}
+.omni-toast-close:hover { opacity: 1; }
+
+@keyframes omni-slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Sign-In page ────────────────────────────────────────────────────────────── */
+.omni-signin-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,0.12) 0%, transparent 70%), var(--bg);
+}
+
+.omni-signin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px;
+  width: min(420px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+.omni-signin-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-1); text-align: center; }
+.omni-signin-sub   { font-size: 14px; color: var(--text-2); text-align: center; margin-bottom: 8px; }
+
+.omni-google-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: #fff;
+  color: #1f2937;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: box-shadow var(--transition), transform var(--transition);
+  min-height: 48px;
+}
+.omni-google-btn:hover  { box-shadow: 0 4px 20px rgba(0,0,0,0.4); transform: translateY(-1px); }
+.omni-google-btn:active { transform: translateY(0); }
+
+/* ── Loading ─────────────────────────────────────────────────────────────────── */
+.omni-loading {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────────────────── */
+@keyframes omni-spin { to { transform: rotate(360deg); } }
+.omni-spin { animation: omni-spin 0.8s linear infinite; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .omni-root { grid-template-columns: 1fr; }
+  .omni-sidebar { position: relative; height: auto; flex-direction: row; flex-wrap: wrap; padding: 16px; border-right: none; border-bottom: 1px solid var(--border); gap: 12px; }
+  .omni-sidebar-top { flex-direction: row; align-items: center; gap: 16px; flex: 1; }
+  .omni-sidebar-logo { flex-shrink: 0; }
+  .omni-nav { flex-direction: row; gap: 4px; }
+  .omni-sidebar-user { margin-left: auto; }
+  .omni-main { padding: 24px 16px 40px; }
+  .omni-cards-grid { grid-template-columns: 1fr; }
+}
