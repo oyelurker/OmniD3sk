@@ -36,31 +36,72 @@ logger = logging.getLogger(__name__)
 _SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 
 
-def _get_calendar_service():
+def _get_calendar_service(user_id: str = ""):
     """
     Build an authenticated Google Calendar API service object.
 
-    Uses google.oauth2.service_account.Credentials loaded from the JSON key
-    file specified by GOOGLE_SERVICE_ACCOUNT_FILE (defaults to gcp-key.json).
+    Credential resolution order:
+      1. MongoDB per-user service_account_json (when user_id is provided).
+      2. GCP_KEY_JSON env var — full JSON string (cloud deployments).
+      3. GOOGLE_SERVICE_ACCOUNT_FILE env var — path to a key file.
+      4. Default: 'gcp-key.json' in the project root (local dev).
 
     Raises:
-        EnvironmentError: if the key file path is missing or the file does not exist.
-        google.auth.exceptions.TransportError / google.auth.exceptions.MutualTLSChannelError:
-            propagated as-is so callers can log the exact root cause.
+        EnvironmentError: if no valid key source is found.
     """
+    import tempfile
     from google.oauth2 import service_account
     from googleapiclient.discovery import build
 
-    key_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "gcp-key.json")
-    if not os.path.exists(key_file):
-        raise EnvironmentError(
-            f"Service account key file not found: '{key_file}'. "
-            "Set GOOGLE_SERVICE_ACCOUNT_FILE in .env or place gcp-key.json in the project root."
+    gcp_key_json = ""
+
+    # 1. MongoDB per-user credentials
+    if user_id:
+        try:
+            from server.mongo_db import get_user_credentials
+            creds_doc = get_user_credentials(user_id)
+            gcp_key_json = creds_doc.get("google_calendar", {}).get("service_account_json") or ""
+            if gcp_key_json:
+                logger.info(f"[Calendar] Using MongoDB service-account JSON for user {user_id}")
+        except Exception as e:
+            logger.warning(f"[Calendar] MongoDB credential lookup failed: {e}")
+
+    # 2. GCP_KEY_JSON env var
+    if not gcp_key_json:
+        gcp_key_json = os.getenv("GCP_KEY_JSON", "").strip()
+        if gcp_key_json:
+            logger.info("[Calendar] Loading service account from GCP_KEY_JSON env var")
+
+    if gcp_key_json:
+        tmp = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False, encoding="utf-8"
+        )
+        try:
+            tmp.write(gcp_key_json)
+            tmp.flush()
+            tmp.close()
+            creds = service_account.Credentials.from_service_account_file(
+                tmp.name, scopes=_SCOPES
+            )
+        finally:
+            try:
+                os.remove(tmp.name)
+            except OSError:
+                pass
+    else:
+        # 3/4. Key file on disk
+        key_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "gcp-key.json")
+        if not os.path.exists(key_file):
+            raise EnvironmentError(
+                f"Service account key file not found: '{key_file}'. "
+                "Save your service-account JSON via the OmniD3sk dashboard, "
+                "or set GCP_KEY_JSON / GOOGLE_SERVICE_ACCOUNT_FILE in your environment."
+            )
+        logger.info(f"[Calendar] Loading service account from file: {key_file}")
+        creds = service_account.Credentials.from_service_account_file(
+            key_file, scopes=_SCOPES
         )
 
-    creds = service_account.Credentials.from_service_account_file(
-        key_file, scopes=_SCOPES
-    )
     service = build("calendar", "v3", credentials=creds, cache_discovery=False)
     logger.info(f"[Calendar] Authenticated as service account: {creds.service_account_email}")
     return service
@@ -71,6 +112,7 @@ def book_calendar_slot(
     duration_minutes: int = 15,
     attendee_email: str = "",
     preferred_date: str = "",
+    user_id: str = "",
 ) -> str:
     """
     Create a real Google Calendar event using the Google Calendar API v3.
@@ -89,7 +131,17 @@ def book_calendar_slot(
         JSON string with success=True and the real htmlLink from Google Calendar,
         or success=False with the exact HTTP/API error string for debugging.
     """
-    calendar_id = os.getenv("CALENDAR_ID", "primary")
+    # Resolve calendar_id: MongoDB first, then env var
+    calendar_id = ""
+    if user_id:
+        try:
+            from server.mongo_db import get_user_credentials
+            creds_doc = get_user_credentials(user_id)
+            calendar_id = creds_doc.get("google_calendar", {}).get("calendar_id") or ""
+        except Exception as e:
+            logger.warning(f"[Calendar] MongoDB calendar_id lookup failed: {e}")
+    if not calendar_id:
+        calendar_id = os.getenv("CALENDAR_ID", "primary")
 
     # ── Build start/end times ──────────────────────────────────────────────────
     now        = datetime.now(tz=timezone.utc)
@@ -148,7 +200,7 @@ def book_calendar_slot(
     )
 
     try:
-        service = _get_calendar_service()
+        service = _get_calendar_service(user_id=user_id)
     except EnvironmentError as e:
         logger.error(f"[Calendar] Auth setup error: {e}")
         return json.dumps({"success": False, "error": str(e)})

@@ -27,13 +27,33 @@ NOTION_API_VERSION = "2022-06-28"
 NOTION_API_BASE    = "https://api.notion.com/v1"
 
 
-def _get_notion_headers() -> dict:
-    """Build the auth headers for every Notion API call."""
-    api_key = os.getenv("NOTION_API_KEY", "")
+def _get_notion_headers(user_id: str = "") -> dict:
+    """
+    Build the auth headers for every Notion API call.
+
+    Credential resolution order:
+      1. MongoDB per-user credentials (when user_id is provided).
+      2. NOTION_API_KEY environment variable (legacy / global fallback).
+    """
+    api_key = ""
+
+    if user_id:
+        try:
+            from server.mongo_db import get_user_credentials
+            creds = get_user_credentials(user_id)
+            api_key = creds.get("notion", {}).get("api_key") or ""
+            if api_key:
+                logger.info(f"[Notion] Using MongoDB credentials for user {user_id}")
+        except Exception as e:
+            logger.warning(f"[Notion] MongoDB credential lookup failed: {e}")
+
+    if not api_key:
+        api_key = os.getenv("NOTION_API_KEY", "")
+
     if not api_key:
         raise EnvironmentError(
-            "NOTION_API_KEY is not set. "
-            "Add it to your .env file: NOTION_API_KEY=secret_xxxxxxxxxxxx"
+            "NOTION_API_KEY is not set. Save it via the OmniD3sk dashboard "
+            "or add it to your .env file: NOTION_API_KEY=secret_xxxxxxxxxxxx"
         )
     return {
         "Authorization": f"Bearer {api_key}",
@@ -99,6 +119,7 @@ def save_threat_report_to_notion(
     content: str,
     tags: List[str] = None,
     database_name: str = "OmniD3sk Knowledge Base",
+    user_id: str = "",
 ) -> str:
     """
     Append a structured threat/diagnostic report to a Notion page.
@@ -119,9 +140,21 @@ def save_threat_report_to_notion(
     if tags is None:
         tags = []
 
-    page_id = os.getenv("NOTION_PAGE_ID", "")
+    # Resolve page_id: MongoDB first, then env var
+    page_id = ""
+    if user_id:
+        try:
+            from server.mongo_db import get_user_credentials
+            creds = get_user_credentials(user_id)
+            page_id = creds.get("notion", {}).get("page_id") or ""
+        except Exception as e:
+            logger.warning(f"[Notion] MongoDB page_id lookup failed: {e}")
+
     if not page_id:
-        err = "NOTION_PAGE_ID is not set in .env"
+        page_id = os.getenv("NOTION_PAGE_ID", "")
+
+    if not page_id:
+        err = "NOTION_PAGE_ID is not set. Save it via the OmniD3sk dashboard or .env."
         logger.error(err)
         return json.dumps({"success": False, "error": err})
 
@@ -129,7 +162,7 @@ def save_threat_report_to_notion(
     page_id_clean = page_id.replace("-", "")
 
     try:
-        headers = _get_notion_headers()
+        headers = _get_notion_headers(user_id=user_id)
     except EnvironmentError as e:
         logger.error(str(e))
         return json.dumps({"success": False, "error": str(e)})
