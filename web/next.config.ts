@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         source: "/ws",
         destination: "http://localhost:8080/ws",
       },
+      {
+        source: "/audio-processors/:path*",
+        destination: "http://localhost:8080/audio-processors/:path*",
+      },
+      {
+        source: "/assets/:path*",
+        destination: "http://localhost:8080/assets/:path*",
+      },
     ];
   },
 };
