@@ -245,6 +245,7 @@ class GeminiLive:
                                 if client_tool_calls:
                                     await event_queue.put({"toolCall": {"functionCalls": client_tool_calls}})
                                 if function_responses:
+                                    _awaiting_user_input = False # Reset gate for incoming tool confirmation
                                     await session.send(input=types.LiveClientToolResponse(
                                         function_responses=function_responses
                                     ))
