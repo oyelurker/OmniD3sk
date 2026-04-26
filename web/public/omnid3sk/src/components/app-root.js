@@ -1,6 +1,6 @@
-import './view-home.js';
-import './view-session.js';
-import './view-summary.js';
+import './view-home.js?v=bustcache3';
+import './view-session.js?v=bustcache3';
+import './view-summary.js?v=bustcache3';
 
 class AppRoot extends HTMLElement {
     constructor() {
@@ -56,6 +56,14 @@ class AppRoot extends HTMLElement {
         }
         currentView.classList.add('fade-in');
         this.viewContainer.appendChild(currentView);
+        
+        // Remove the fade-in class after animation completes to destroy the transform containing block
+        // This ensures position: fixed elements (like modals/drawers) work correctly relative to viewport
+        setTimeout(() => {
+            if (currentView && currentView.classList) {
+                currentView.classList.remove('fade-in');
+            }
+        }, 650);
     }
 }
 

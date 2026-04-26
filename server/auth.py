@@ -135,7 +135,7 @@ async def google_callback(code: str = "", error: str = ""):
 
     jwt_token = _create_jwt({"user_id": google_sub, "email": email, "name": name})
     logger.info(f"[Auth] Issued JWT for user: {google_sub} ({email})")
-    return RedirectResponse(url=f"{FRONTEND_URL}dashboard?token={jwt_token}")
+    return RedirectResponse(url=f"{FRONTEND_URL}?token={jwt_token}")
 
 
 @router.get("/me")

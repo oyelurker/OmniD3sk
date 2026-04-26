@@ -264,6 +264,86 @@ class ViewHome extends HTMLElement {
                 .delay-2 { transition-delay: 0.1s; }
                 .delay-3 { transition-delay: 0.15s; }
                 .delay-4 { transition-delay: 0.2s; }
+                /* ─── Auth & Drawer Styles ─── */
+                .auth-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+                .auth-dropdown-wrapper { position: relative; display: inline-block; }
+                .auth-dropdown-menu {
+                    position: absolute; top: 120%; right: 0; background: var(--surface); border: 1px solid var(--stroke);
+                    border-radius: 12px; padding: 8px; display: none; flex-direction: column; min-width: 160px; z-index: 100;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                }
+                .auth-dropdown-menu.active { display: flex; animation: fadeInUp 0.2s ease; }
+                .auth-menu-item {
+                    padding: 10px 16px; color: #fff; text-decoration: none; font-size: 14px;
+                    border-radius: 8px; cursor: pointer; transition: background 0.2s; text-align: left; background: transparent; border: none; font-family: inherit;
+                }
+                .auth-menu-item:hover { background: rgba(255,255,255,0.1); }
+                .auth-menu-item.danger { color: #ff4d4d; }
+
+                /* Drawer */
+                .drawer-overlay {
+                    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+                    z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+                }
+                .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+                .drawer-panel {
+                    position: fixed; right: 0; top: 0; height: 100vh; width: 450px; background: #0a0a0a;
+                    border-left: 1px solid #222; z-index: 1000; transform: translateX(100%);
+                    transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); display: flex; flex-direction: column;
+                }
+                @media (max-width: 768px) { .drawer-panel { width: 100%; } }
+                .drawer-panel.active { transform: translateX(0); }
+                .drawer-header { padding: 24px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+                .drawer-title { font-size: 20px; font-weight: 500; }
+                .drawer-close { background: none; border: none; color: #888; cursor: pointer; font-size: 28px; transition: color 0.2s; padding:0; line-height:1; }
+                .drawer-close:hover { color: #fff; }
+                .drawer-content { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 24px; }
+                
+                /* Drawer Integration Cards */
+                .integration-card { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; }
+                .integration-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+                .integration-name { font-size: 16px; font-weight: 500; display:flex; align-items:center; gap:8px;}
+                .status-badge { font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; letter-spacing: 0.05em; display:inline-flex; align-items:center; gap:4px;}
+                .status-badge.connected { background: rgba(0,212,170,0.1); color: #00d4aa; }
+                .status-badge.disconnected { background: rgba(255,255,255,0.05); color: #888; }
+                .integration-form { display: flex; flex-direction: column; gap: 12px; }
+                .input-group { display: flex; flex-direction: column; gap: 6px; }
+                .input-group label { font-size: 12px; color: #aaa; }
+                .input-group input { background: #000; border: 1px solid #333; border-radius: 6px; padding: 10px; color: #fff; font-family: inherit; font-size: 14px; width:100%;}
+                .input-group input:focus { outline: none; border-color: #555; }
+                .drawer-btn { background: #fff; color: #000; border: none; border-radius: 6px; padding: 10px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 14px; transition:opacity 0.2s;}
+                .drawer-btn:hover { opacity: 0.8; }
+                
+                /* Setup Guide Styles */
+                .setup-guide { margin-bottom: 16px; background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+                .setup-guide summary { padding: 12px 16px; font-size: 13px; font-weight: 500; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; color: #ccc; }
+                .setup-guide summary::-webkit-details-marker { display: none; }
+                .setup-guide summary:hover { background: rgba(255,255,255,0.05); color: #fff; }
+                .setup-guide summary::after { content: '+'; font-size: 16px; }
+                .setup-guide[open] summary::after { content: '-'; }
+                .setup-guide-content { padding: 0 16px 16px 16px; font-size: 12px; color: #aaa; line-height: 1.5; }
+                .setup-guide-content ol { padding-left: 16px; margin-top: 8px; display:flex; flex-direction:column; gap:6px; }
+                .setup-guide-content a { color: #89AACC; text-decoration: none; }
+                .setup-guide-content a:hover { text-decoration: underline; }
+
+                /* ─── Warning Modal ─── */
+                .modal-overlay {
+                    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+                    z-index: 2000; display: none; align-items: center; justify-content: center;
+                }
+                .modal-overlay.active { display: flex; }
+                .modal-box {
+                    background: #111; border: 1px solid #333; border-radius: 16px; padding: 32px;
+                    max-width: 420px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+                }
+                .modal-title { font-size: 28px; font-weight: 500; margin-bottom: 12px; font-family: 'Instrument Serif', serif; font-style: italic; color: #fff; }
+                .modal-desc { font-size: 14px; color: #ccc; margin-bottom: 32px; line-height: 1.5; }
+                .modal-actions { display: flex; flex-direction: column; gap: 12px; }
+                .modal-btn { padding: 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.2s; }
+                .modal-btn:hover { transform: scale(1.02); }
+                .btn-primary { background: #fff; color: #000; }
+                .btn-danger { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3); }
+                .btn-danger:hover { background: rgba(255, 77, 77, 0.25); }
             </style>
 
             <!-- Hero Section -->
@@ -284,10 +364,9 @@ class ViewHome extends HTMLElement {
                     <div class="nav-center">
                     </div>
 
-                    <div class="nav-right">
-                        <a href="https://github.com/oyelurker/OmniD3sk" target="_blank" class="waitlist-btn nav-btn" style="text-decoration: none;">
-                            <div class="btn-inner">GitHub Repo</div>
-                        </a>
+                    <div class="nav-right" id="nav-auth-container">
+                        <!-- Auth buttons injected via JS -->
+                        <div style="width: 120px; height: 40px;"></div>
                     </div>
                 </nav>
 
@@ -462,6 +541,33 @@ class ViewHome extends HTMLElement {
                     </div>
                 </div>
             </footer>
+
+            <!-- Warning Modal -->
+            <div class="modal-overlay" id="setup-warning-modal">
+                <div class="modal-box">
+                    <div class="modal-title">Setup Incomplete</div>
+                    <div class="modal-desc">You haven't fully connected your integrations (Notion / Google Calendar). Olivia's autonomous actions will be heavily limited.</div>
+                    <div class="modal-actions">
+                        <button class="modal-btn btn-primary" id="modal-setup-btn">Take me to Setup</button>
+                        <button class="modal-btn btn-danger" id="modal-continue-btn">Continue with Default</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrations Drawer -->
+            <div class="drawer-overlay" id="integrations-overlay"></div>
+            <div class="drawer-panel" id="integrations-drawer">
+                <div class="drawer-header">
+                    <div class="drawer-title">Integrations</div>
+                    <button class="drawer-close" id="close-drawer">&times;</button>
+                </div>
+                <div class="drawer-content">
+                    <p style="color:var(--muted); font-size:14px; margin-bottom:8px;">Connect your tools so OmniD3sk can act on your behalf.</p>
+                    <div id="drawer-integrations-container">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
         `;
 
         // Setting up IntersectionObserver for scroll animations
@@ -482,24 +588,309 @@ class ViewHome extends HTMLElement {
 
         this.querySelectorAll('.reveal').forEach(el => scrollObserver.observe(el));
 
+        // Auth / Token logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            localStorage.setItem('omnid3sk_token', token);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        this.initAuth();
+
+        // Drawer Event Listeners
+        this.querySelector('#integrations-overlay').addEventListener('click', () => this.closeDrawer());
+        this.querySelector('#close-drawer').addEventListener('click', () => this.closeDrawer());
+
         // Start button logic
         this.querySelector('#start-btn').addEventListener('click', () => {
-            const language = "English"; 
-            const userName = "Guest";   
-            
-            // Dramatic exit animation
-            this.style.opacity = '0';
-            this.style.transform = 'scale(1.05)';
-            this.style.filter = 'blur(10px) brightness(1.5)';
-            this.style.transition = 'all 0.6s cubic-bezier(0.19, 1, 0.22, 1)';
+            const notionConnected = this.user?.integrations?.notion?.connected;
+            const gcalConnected = this.user?.integrations?.google_calendar?.connected;
 
-            setTimeout(() => {
+            if (!notionConnected || !gcalConnected) {
+                this.querySelector('#setup-warning-modal').classList.add('active');
+                return;
+            }
+
+            this.startSession();
+        });
+
+        // Modal actions
+        this.querySelector('#modal-setup-btn').addEventListener('click', () => {
+            this.querySelector('#setup-warning-modal').classList.remove('active');
+            if (!this.user) {
+                window.location.href = "/api/auth/google/login";
+            } else {
+                this.openDrawer();
+            }
+        });
+
+        this.querySelector('#modal-continue-btn').addEventListener('click', () => {
+            this.querySelector('#setup-warning-modal').classList.remove('active');
+            this.startSession();
+        });
+    }
+
+    startSession() {
+        const language = "English"; 
+        const userName = this.user ? this.user.name : "Guest";   
+        
+        // Dramatic exit animation
+        this.style.opacity = '0';
+        this.style.transform = 'scale(1.05)';
+        this.style.filter = 'blur(10px) brightness(1.5)';
+        this.style.transition = 'all 0.6s cubic-bezier(0.19, 1, 0.22, 1)';
+
+        setTimeout(() => {
+            const root = document.querySelector('app-root');
+            if (root && root.state && root.render) {
+                // Bypass event bubbling and force the state change and render
+                root.state.view = 'session';
+                root.state.language = language;
+                root.state.token = localStorage.getItem('omnid3sk_token');
+                root.render();
+            } else {
+                // Fallback
                 this.dispatchEvent(new CustomEvent('navigate', {
                     bubbles: true,
-                    detail: { view: 'session', language, userName }
+                    composed: true,
+                    detail: { view: 'session', language, userName, token: localStorage.getItem('omnid3sk_token') }
                 }));
-            }, 500);
+            }
+        }, 500);
+    }
+
+    async initAuth() {
+        const container = this.querySelector('#nav-auth-container');
+        const token = localStorage.getItem('omnid3sk_token');
+        
+        if (!token) {
+            this.renderLoginButton(container);
+            return;
+        }
+
+        try {
+            // Next.js proxies this to 8080
+            const res = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Not authenticated');
+            
+            this.user = await res.json();
+            this.renderUserMenu(container);
+        } catch (err) {
+            console.error("Auth error:", err);
+            localStorage.removeItem('omnid3sk_token');
+            this.renderLoginButton(container);
+        }
+    }
+
+    renderLoginButton(container) {
+        container.innerHTML = `
+            <a href="/api/auth/google/login" class="waitlist-btn nav-btn" style="text-decoration: none;">
+                <div class="btn-inner">Sign In</div>
+            </a>
+        `;
+    }
+
+    renderUserMenu(container) {
+        const initial = this.user.name ? this.user.name.charAt(0).toUpperCase() : '?';
+        const pictureHtml = this.user.picture 
+            ? `<img src="${this.user.picture}" class="auth-avatar" />`
+            : `<div class="auth-avatar" style="background:#333; display:flex; align-items:center; justify-content:center; font-size:12px;">${initial}</div>`;
+
+        container.innerHTML = `
+            <div class="auth-dropdown-wrapper" id="auth-dropdown">
+                <button class="waitlist-btn nav-btn" style="border:none; cursor:pointer;" id="user-menu-btn">
+                    <div class="btn-inner" style="gap:10px;">
+                        ${pictureHtml}
+                        <span>${this.user.name}</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </button>
+                <div class="auth-dropdown-menu" id="auth-menu-content">
+                    <button class="auth-menu-item" id="menu-integrations">Integrations</button>
+                    <button class="auth-menu-item danger" id="menu-logout">Sign Out</button>
+                </div>
+            </div>
+        `;
+
+        // Dropdown toggle
+        const btn = this.querySelector('#user-menu-btn');
+        const menu = this.querySelector('#auth-menu-content');
+        
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('active');
         });
+
+        document.addEventListener('click', () => {
+            if (menu.classList.contains('active')) menu.classList.remove('active');
+        });
+
+        // Menu Actions
+        this.querySelector('#menu-integrations').addEventListener('click', () => {
+            this.openDrawer();
+        });
+
+        this.querySelector('#menu-logout').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Sign Out clicked. Removing token.");
+            localStorage.removeItem('omnid3sk_token');
+            // Force a full navigation to root to guarantee state is cleared
+            window.location.href = '/';
+        });
+    }
+
+    openDrawer() {
+        this.querySelector('#integrations-overlay').classList.add('active');
+        this.querySelector('#integrations-drawer').classList.add('active');
+        this.renderDrawerContent();
+    }
+
+    closeDrawer() {
+        this.querySelector('#integrations-overlay').classList.remove('active');
+        this.querySelector('#integrations-drawer').classList.remove('active');
+    }
+
+    renderDrawerContent() {
+        const container = this.querySelector('#drawer-integrations-container');
+        if (!this.user || !this.user.integrations) return;
+        
+        const notion = this.user.integrations.notion || {};
+        const gcal = this.user.integrations.google_calendar || {};
+
+        container.innerHTML = `
+            <!-- Notion Card -->
+            <div class="integration-card">
+                <div class="integration-header">
+                    <div class="integration-name">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.342a2 2 0 0 0-.602-1.43l-4.44-4.342A2 2 0 0 0 14.53 2H6a2 2 0 0 0-2 2z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                        Notion
+                    </div>
+                    <div class="status-badge ${notion.connected ? 'connected' : 'disconnected'}">
+                        ${notion.connected ? '• CONNECTED' : '• NOT CONNECTED'}
+                    </div>
+                </div>
+                <div class="integration-form" id="form-notion">
+                    <details class="setup-guide">
+                        <summary>How to get Notion keys?</summary>
+                        <div class="setup-guide-content">
+                            <ol>
+                                <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank">Notion Integrations</a> and create a new integration. Copy the "Internal Integration Secret" (API Key).</li>
+                                <li>Open your target Notion page, click the <b>...</b> menu (top right) → "Add connections" → select your integration.</li>
+                                <li>Copy the 32-character ID from the URL of that page (e.g. <code>.../My-Page-1a2b3c...</code>).</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <div class="input-group">
+                        <label>API Key</label>
+                        <input type="password" id="notion-key" placeholder="${notion.api_key_hint ? `Stored (${notion.api_key_hint})` : 'secret_...'}" />
+                    </div>
+                    <div class="input-group">
+                        <label>Page ID</label>
+                        <input type="text" id="notion-page" placeholder="32-char hex ID" value="${notion.page_id || ''}" />
+                    </div>
+                    <button class="drawer-btn" id="save-notion">Save Notion</button>
+                </div>
+            </div>
+
+            <!-- Google Calendar Card -->
+            <div class="integration-card">
+                <div class="integration-header">
+                    <div class="integration-name">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Google Calendar
+                    </div>
+                    <div class="status-badge ${gcal.connected ? 'connected' : 'disconnected'}">
+                        ${gcal.connected ? '• CONNECTED' : '• NOT CONNECTED'}
+                    </div>
+                </div>
+                <div class="integration-form" id="form-gcal">
+                    <details class="setup-guide">
+                        <summary>How to setup Google Calendar?</summary>
+                        <div class="setup-guide-content">
+                            <ol>
+                                <li>Use <b>primary</b> to connect your main calendar, or paste a specific Calendar ID from settings.</li>
+                                <li>If you want OmniD3sk to act as a Service Account, create one in Google Cloud Console, download the JSON key, and paste its contents here.</li>
+                                <li><i>Important:</i> If using a Service Account, remember to share your calendar with the service account's email address!</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <div class="input-group">
+                        <label>Calendar ID</label>
+                        <input type="text" id="gcal-id" placeholder="primary or email@domain.com" value="${gcal.calendar_id || ''}" />
+                    </div>
+                    <div class="input-group">
+                        <label>Service Account JSON (optional)</label>
+                        <input type="password" id="gcal-json" placeholder="Paste full JSON key (leaves blank to keep current)" />
+                    </div>
+                    <button class="drawer-btn" id="save-gcal">Save Calendar</button>
+                </div>
+            </div>
+        `;
+
+        // Event Listeners for Save Buttons
+        this.querySelector('#save-notion').addEventListener('click', async (e) => {
+            const btn = e.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            
+            const payload = {
+                notion_api_key: this.querySelector('#notion-key').value || undefined,
+                notion_page_id: this.querySelector('#notion-page').value || undefined
+            };
+
+            await this.saveIntegration(payload);
+            btn.innerText = 'Saved!';
+            setTimeout(() => btn.innerText = originalText, 2000);
+        });
+
+        this.querySelector('#save-gcal').addEventListener('click', async (e) => {
+            const btn = e.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            
+            let creds_json = undefined;
+            const jsonVal = this.querySelector('#gcal-json').value;
+            if (jsonVal) {
+                try { creds_json = JSON.parse(jsonVal); } 
+                catch(e) { alert('Invalid JSON format'); btn.innerText = originalText; return; }
+            }
+
+            const payload = {
+                google_calendar_id: this.querySelector('#gcal-id').value || undefined,
+                google_credentials_json: creds_json
+            };
+
+            await this.saveIntegration(payload);
+            btn.innerText = 'Saved!';
+            setTimeout(() => btn.innerText = originalText, 2000);
+        });
+    }
+
+    async saveIntegration(payload) {
+        const token = localStorage.getItem('omnid3sk_token');
+        try {
+            const res = await fetch('/api/integrations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                // Refresh auth state to update badges
+                await this.initAuth();
+                if (this.querySelector('#integrations-drawer').classList.contains('active')) {
+                    this.renderDrawerContent();
+                }
+            }
+        } catch(e) {
+            console.error("Failed to save integration", e);
+        }
     }
 }
 
