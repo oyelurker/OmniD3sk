@@ -20,7 +20,7 @@ COPY server/ ./server/
 COPY omniflow/ ./omniflow/
 
 # Copy the fresh build from the build-stage
-COPY --from=build-stage /build/dist/ ./dist/
+COPY --from=build-stage /app/dist/ ./dist/
 
 # Cloud Run injects PORT env var (default 8080)
 ENV PORT=8080
