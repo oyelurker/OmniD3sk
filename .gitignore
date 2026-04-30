@@ -1,0 +1,36 @@
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.production
+gcp-key.json
+*.pem
+
+# --- Credentials (JSON service account keys) ---
+# Allow specific JSON files that are NOT secrets
+/*.json
+!/package.json
+!/.dockerignore
+
+# --- SQLite Databases ---
+*.db
+
+# --- Python ---
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Node / Frontend ---
+node_modules/
+web/.next/
+dist/
+
+# --- Skills.sh / Agents ---
+.agents/
+skills-lock.json
+
+# --- Temp & OS ---
+tmp/
+.DS_Store
+Thumbs.db
+*.log

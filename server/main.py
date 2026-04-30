@@ -56,9 +56,19 @@ def log_activity(category: str, action: str, detail: str = "", severity: str = "
 app = FastAPI(title="OmniD3sk API", version="1.0.0")
 _BOOT_TIME = time.time()
 
+_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8080",
+]
+_frontend_url = os.getenv("FRONTEND_URL", "")
+if _frontend_url and _frontend_url not in _ALLOWED_ORIGINS:
+    _ALLOWED_ORIGINS.append(_frontend_url.rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
