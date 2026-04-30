@@ -20,7 +20,8 @@ COPY server/ ./server/
 COPY omniflow/ ./omniflow/
 
 # Copy the fresh build from the build-stage
-COPY --from=build-stage /app/dist/ ./dist/
+# (Vite is configured to output to ../../../dist, which resolves to /dist in this context)
+COPY --from=build-stage /dist/ ./dist/
 
 # Cloud Run injects PORT env var (default 8080)
 ENV PORT=8080
