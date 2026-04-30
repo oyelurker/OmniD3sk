@@ -1,7 +1,8 @@
 # --- Stage 1: Build Frontend ---
 FROM node:20-slim AS build-stage
-WORKDIR /build
-COPY web/public/omnid3sk/package*.json ./
+WORKDIR /app
+# Explicitly copy files from the web directory
+COPY web/public/omnid3sk/package.json ./
 RUN npm install
 COPY web/public/omnid3sk/ ./
 RUN npm run build
