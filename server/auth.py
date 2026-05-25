@@ -136,9 +136,9 @@ async def google_callback(code: str = "", error: str = ""):
     jwt_token = _create_jwt({"user_id": google_sub, "email": email, "name": name})
     logger.info(f"[Auth] Issued JWT for user: {google_sub} ({email})")
     
-    # Redirect to the dashboard explicitly to prevent the frontend root from stripping the token
+    # Redirect directly to the Voice Agent app, which will parse and save the token
     frontend_base = FRONTEND_URL.rstrip("/")
-    return RedirectResponse(url=f"{frontend_base}/dashboard?token={jwt_token}")
+    return RedirectResponse(url=f"{frontend_base}/omnid3sk/index.html?token={jwt_token}")
 
 
 @router.get("/me")
