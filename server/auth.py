@@ -135,7 +135,10 @@ async def google_callback(code: str = "", error: str = ""):
 
     jwt_token = _create_jwt({"user_id": google_sub, "email": email, "name": name})
     logger.info(f"[Auth] Issued JWT for user: {google_sub} ({email})")
-    return RedirectResponse(url=f"{FRONTEND_URL}?token={jwt_token}")
+    
+    # Redirect to the dashboard explicitly to prevent the frontend root from stripping the token
+    frontend_base = FRONTEND_URL.rstrip("/")
+    return RedirectResponse(url=f"{frontend_base}/dashboard?token={jwt_token}")
 
 
 @router.get("/me")
