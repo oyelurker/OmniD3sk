@@ -985,7 +985,7 @@ class ViewSession extends HTMLElement {
 
         backBtn.addEventListener('click', () => {
             this.cleanup();
-            this.dispatchEvent(new CustomEvent('navigate', { bubbles: true, detail: { view: 'home' } }));
+            window.location.href = '/dashboard';
         });
 
         micBtn.addEventListener('click', async () => {
