@@ -2,8 +2,9 @@
 
 **Voice-driven AI command center for SecOps & IT Service Management**
 
-> *Built for the Gen AI APAC Edition — Cohort 1 Hackathon*
-<img width="1856" height="886" alt="image" src="https://github.com/user-attachments/assets/1ae4ddde-1a04-4cea-9b24-b6bf267d1f54" />
+> *<a href="https://omnid3sk.app/">omnid3sk.app</a> — Built for the Gen AI APAC Edition — Cohort 1 Hackathon*
+<img width="1834" height="918" alt="image" src="https://github.com/user-attachments/assets/5494275f-4109-4c7e-a9f4-2bef169e05b5" />
+
 
 ---
 
